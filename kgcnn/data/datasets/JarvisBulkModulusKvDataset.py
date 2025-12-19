@@ -16,13 +16,31 @@ class JarvisBulkModulusKvDataset(JarvisBenchDataset2021):
 
     """
 
-    def __init__(self, reload=False, verbose: int = 10):
+    def __init__(self, reload=False, verbose: int = 10, data_main_dir: str = None):
         r"""Initialize 'bulk_modulus_kv' dataset.
 
         Args:
             reload (bool): Whether to reload the data and make new dataset. Default is False.
             verbose (int): Print progress or info for processing where 60=silent. Default is 10.
+            data_main_dir (str): Path to main data directory. Default is None (uses system default).
         """
-        super(JarvisBulkModulusKvDataset, self).__init__("bulk_modulus_kv", reload=reload, verbose=verbose)
+        import os
+        if data_main_dir is None:
+            # Try common paths
+            possible_paths = [
+                os.path.join(os.path.expanduser("~"), "datasets"),  # ~/datasets
+                "/home/datasets",  # /home/datasets
+                os.path.join(os.getcwd(), "datasets"),  # ./datasets
+            ]
+            for path in possible_paths:
+                if os.path.exists(path):
+                    data_main_dir = os.path.dirname(path) if os.path.basename(path) == "jarvis_dft_3d_bulk_modulus_kv" else path
+                    break
+            if data_main_dir is None:
+                data_main_dir = os.path.join(os.path.expanduser("~"), "datasets")
+
+        super(JarvisBulkModulusKvDataset, self).__init__(
+            "bulk_modulus_kv", reload=reload, verbose=verbose, data_main_dir=data_main_dir
+        )
         self.label_names = "bulk_modulus_kv "
         self.label_units = "Gpa"
